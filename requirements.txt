@@ -4,3 +4,4 @@ shiny
 shinywidgets
 datetime
 faicons
+jupyter
