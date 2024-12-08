@@ -1,0 +1,7 @@
+plotly.express
+pandas
+shiny
+shiny.express
+shinywidgets
+datetime
+faicons
