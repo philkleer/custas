@@ -1,0 +1,41 @@
+custa,tipo,valor,year,month,data,label
+aluguel,apartamento,1400,2024,10,2024-10,Aluguél
+energia,apartamento,109.36,2024,10,2024-10,Energia
+gas,apartamento,100,2024,10,2024-10,Gás
+internet,apartamento,59.99,2024,10,2024-10,Oi! Fibra
+agua,apartamento,72,2024,10,2024-10,Água
+bebidas,lazer,320.6,2024,10,2024-10,Bebidas/Comidas
+ifood,lazer,72.9,2024,10,2024-10,iFood
+amazon,outros,415.46,2024,10,2024-10,Mobiliário
+magalu,outros,74.99,2024,10,2024-10,Mobiliário
+shoppee,outros,80.74,2024,10,2024-10,Mobiliário
+assinaturas,outros,88.8,2024,10,2024-10,Assinaturas
+parcelamento,outros,92,2024,10,2024-10,Parcelamento Pai
+renda,renda,4000,2024,10,2024-10,Renda
+arcomix,supermercado,1062.04,2024,10,2024-10,Arco-Mix
+atacado,supermercado,573.72,2024,10,2024-10,Atacado
+farmacia,supermercado,110.22,2024,10,2024-10,Farmácia
+uber,outros,271.84,2024,10,2024-10,Uber
+aluguel,apartamento,1400,2024,11,2024-11,Aluguél
+energia,apartamento,174.81,2024,11,2024-11,Energia
+gas,apartamento,0,2024,11,2024-11,Gás
+internet,apartamento,59.99,2024,11,2024-11,Oi! Fibra
+agua,apartamento,48,2024,11,2024-11,Água
+bebidas,lazer,456.74,2024,11,2024-11,Bebidas/Comidas
+ifood,lazer,105.8,2024,11,2024-11,iFood
+cinema,lazer,29.64,2024,11,2024-11,Museu/Cultura/Cinema
+amazon,outros,62.32,2024,11,2024-11,Mobiliário
+assinaturas,outros,88.8,2024,11,2024-11,Assinaturas
+parcelamento,outros,92,2024,11,2024-11,Parcelamento Pai
+ferreira,outros,18,2024,11,2024-11,Mobiliário
+renda,renda,4000,2024,11,2024-11,Renda
+arcomix,supermercado,1016.48,2024,11,2024-11,Arco-Mix
+atacado,supermercado,664.37,2024,11,2024-11,Atacado
+farmacia,supermercado,76.78,2024,11,2024-11,Farmácia
+uber,outros,344.69,2024,11,2024-11,Uber
+atacado,supermercado,733.37,2024,12,2024-12,Atacado
+aluguel,apartamento,1400,2024,12,2024-12,Aluguél
+energia,apartamento,0,2024,12,2024-12,Energia
+gas,apartamento,0,2024,12,2024-12,Gás
+internet,apartamento,59.99,2024,12,2024-12,Oi! Fibra
+agua,apartamento,48,2024,12,2024-12,Água
