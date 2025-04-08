@@ -1,7 +1,9 @@
-plotly.express
-pandas
 shiny
 shinywidgets
+pandas
+plotly
+matplotlib
+faicons
+quarto
 datetime
 faicons
-jupyter

@@ -17,6 +17,7 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
     from shinywidgets import render_widget
     from datetime import datetime, timedelta
     from faicons import icon_svg
+    import matplotlib.colors as mcolors
 
     df = pd.read_csv('data/custas.csv')
     # df['data'] = pd.to_datetime(df['data'])
@@ -27,6 +28,13 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
 
     df_avg = grouped_df.groupby('tipo').agg({'valor': 'mean'}).reset_index()
 
+    # for the month-wise plots
+    def lighten_color(color, factor):
+        """Lightens a given color by blending it with white."""
+        rgb = mcolors.to_rgb(color)  # Convert HEX to RGB
+        white = (1, 1, 1)  # White color in RGB
+        return mcolors.to_hex([(1 - factor) * c + factor * w for c, w in zip(rgb, white)])
+
     # ========================================================================
 
     newest_month = df['data'].max()
@@ -36,13 +44,13 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
     oldest_month_str = pd.to_datetime(oldest_month).strftime('%Y-%m-%d')
 
     ui.input_date_range(
-        "daterange", "Date range:",
+        'daterange', 'Intervalo:',
         start=oldest_month_str,
         end=newest_month_str,
         min=oldest_month_str,
         max=newest_month_str,
         format='yyyy-mm',
-        startview = "year",
+        startview = 'year',
         language='pt-BR'
     )
 
@@ -54,11 +62,23 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
     # ========================================================================
 
     @render.text  
+    def sum_over_month():  
+        data_selected = df.loc[(df['data'] >= input.daterange()[0].strftime('%Y-%m')) & (df['data'] <= input.daterange()[1].strftime('%Y-%m')) & (df['tipo'] != 'renda')]
+        mean_value = data_selected.groupby('data')['valor'].sum()
+
+        data_selected = df.loc[(df['data'] >= input.daterange()[0].strftime('%Y-%m')) & (df['data'] <= input.daterange()[1].strftime('%Y-%m')) & (df['tipo'] == 'renda')]
+        mean_value2 = data_selected.groupby('data')['valor'].sum()    
+
+        return f'R$ {mean_value2.mean() - mean_value.mean():.2f}'  
+
+    # ========================================================================
+
+    @render.text  
     def medio_1():  
         data_selected = df.loc[(df['data'] >= input.daterange()[0].strftime('%Y-%m')) & (df['data'] <= input.daterange()[1].strftime('%Y-%m')) & (df['tipo'] == 'apartamento')]
         mean_value = data_selected.groupby('data')['valor'].sum()
 
-        return f"R$ {mean_value.mean():.2f}"  
+        return f'R$ {mean_value.mean():.2f}'  
 
     # ========================================================================
 
@@ -67,7 +87,7 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
         data_selected = df.loc[(df['data'] >= input.daterange()[0].strftime('%Y-%m')) & (df['data'] <= input.daterange()[1].strftime('%Y-%m')) & (df['tipo'] == 'supermercado')]
         mean_value = data_selected.groupby('data')['valor'].sum()
 
-        return f"R$ {mean_value.mean():.2f}" 
+        return f'R$ {mean_value.mean():.2f}' 
 
     # ========================================================================
 
@@ -76,7 +96,7 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
         data_selected = df.loc[(df['data'] >= input.daterange()[0].strftime('%Y-%m')) & (df['data'] <= input.daterange()[1].strftime('%Y-%m')) & (df['tipo'] == 'lazer')]
         mean_value = data_selected.groupby('data')['valor'].sum()
 
-        return f"R$ {mean_value.mean():.2f}" 
+        return f'R$ {mean_value.mean():.2f}' 
 
     # ========================================================================
 
@@ -90,10 +110,10 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
 
         line_plot = px.line(
             data_frame=plotdata_cleaned.loc[(df['tipo'] != 'renda')], 
-            x="data", 
+            x='data', 
             y='valor', 
             color='tipo',
-            labels=dict(data="Mês", valor="Valor (R$)", tipo="Tipo"),
+            labels=dict(data='Mês', valor='Valor (R$)', tipo='Tipo'),
             color_discrete_map={
                 'apartamento':'#D81B60',
                 'lazer':'#1E88E5',
@@ -101,7 +121,7 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
                 'supermercado':'#009E73'
             }
         ).update_layout(
-            xaxis_type='category',
+            xaxis_type='date',
         )
 
         line_plot.update_xaxes(
@@ -140,8 +160,8 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
 
     def generate_month_range(start_month: str, end_month: str):
         # Convert the start and end months to datetime objects
-        start_date = datetime.strptime(start_month, "%Y-%m")
-        end_date = datetime.strptime(end_month, "%Y-%m")
+        start_date = datetime.strptime(start_month, '%Y-%m')
+        end_date = datetime.strptime(end_month, '%Y-%m')
 
         # Initialize the array and a temporary variable to track the current month
         month_array = []
@@ -149,7 +169,7 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
 
         # Loop through each month from start to end, appending to the list
         while current_date <= end_date:
-            month_array.append(current_date.strftime("%Y-%m"))  # Append as string
+            month_array.append(current_date.strftime('%Y-%m'))  # Append as string
             # Move to the next month
             current_date = (current_date.replace(day=1) + timedelta(days=31)).replace(day=1)
 
@@ -168,14 +188,25 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
         ui.insert_ui
 
         ui.update_select(
-            "month",
+            'month',
             choices=input.month_select.choices,
             selected=input.month_select.choices[1]
         )
 
     ui.input_select(
-        "month", "Select month", []
+        'month', 'Escolha mês', []
     )
+
+    # ========================================================================
+
+    @render.text
+    def value():
+        gastos_mes = df.loc[(df['data'] == str(input.month())) & (df['tipo'] != 'renda')]['valor'].sum()
+        renda_mes = df.loc[(df['data'] == str(input.month())) & (df['tipo'] == 'renda')]['valor'].sum()
+        diff = renda_mes - gastos_mes
+        string = 'Neste mês gastamos: R$' + str(round(gastos_mes, 2)) + '\n'+ 'Neste mês renda: R$' + str(round(renda_mes, 2)) + '\n\n' + 'Diferênça este mês: R$:' + str(round(diff, 2))
+
+        return string
 
     # ========================================================================
 
@@ -239,19 +270,29 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
 
     @render_widget
     def plot_apartamento():  
+        filtered_df = df.loc[(df['data'] == str(input.month())) & (df['tipo'].isin(['apartamento'])) & (df['valor'] > 0)].sort_values(by='valor', ascending=False)  
+    
+        unique_labels = filtered_df['label'].unique()
+
+        base_color = '#D81B60'
+
+        max_steps = len(unique_labels) - 1 if len(unique_labels) > 1 else 1
+
+        alpha_step = 0.9 / max_steps
+    
+        # Generate lighter colors
+        color_discrete_map = {
+            label: lighten_color(base_color, factor=i * alpha_step)  
+            for i, label in enumerate(unique_labels)
+        }
+
         pie_apartamento = px.pie(
-            data_frame=df.loc[(df['data'] == str(input.month())) & (df['tipo'].isin(['apartamento']))], 
+            data_frame=filtered_df, 
             values='valor',  
             names='label', 
             hole=0.5,
             color='label', 
-            color_discrete_map={
-                'Aluguél':'#D81B60',
-                'Energia':'#D81B6090',
-                'Oi! Fibra':'#D81B6060',
-                'Água':'#D81B6030',
-                'Gás': '#D81B6010'
-            }
+            color_discrete_map = color_discrete_map
             )
         return pie_apartamento
 
@@ -259,16 +300,28 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
 
     @render_widget
     def plot_supermercado():  
+        filtered_df = df.loc[(df['data'] == str(input.month())) & (df['tipo'] == 'supermercado') & (df['valor'] > 0)].sort_values(by='valor', ascending=False)  
+
+        unique_labels = filtered_df['label'].unique()
+
+        base_color = '#009E73'
+
+        max_steps = len(unique_labels) - 1 if len(unique_labels) > 1 else 1
+
+        alpha_step = 0.9 / max_steps
+    
+        # Generate lighter colors
+        color_discrete_map = {
+            label: lighten_color(base_color, factor=i * alpha_step)  
+            for i, label in enumerate(unique_labels)
+        }
+
         pie_supermercado = px.pie(
-            data_frame=df.loc[(df['data'] == str(input.month())) & (df['tipo'] == 'supermercado')], 
+            data_frame=filtered_df, 
             values='valor',  
             names='label', 
             color='label', 
-            color_discrete_map={
-                'Arco-Mix':'#009E7390',
-                'Atacado':'#009E7360',
-                'Farmácia':'#009E7330'
-            },
+            color_discrete_map=color_discrete_map,
             hole=0.5)
         return pie_supermercado
 
@@ -276,16 +329,28 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
 
     @render_widget
     def plot_lazer():  
+        filtered_df = df.loc[(df['data'] == str(input.month())) & (df['tipo'] == 'lazer') & (df['valor'] > 0)].sort_values(by='valor', ascending=False) 
+
+
+        unique_labels = filtered_df['label'].unique()
+
+        base_color = '#1E88E5'
+
+        max_steps = len(unique_labels) - 1 if len(unique_labels) > 1 else 1
+
+        alpha_step = 0.9 / max_steps
+
+        color_discrete_map = {
+            label: lighten_color(base_color, factor=i * alpha_step)  
+            for i, label in enumerate(unique_labels)
+        }
+
         pie_lazer = px.pie(
-            data_frame=df.loc[(df['data'] == str(input.month())) & (df['tipo'] == 'lazer')], 
+            data_frame=filtered_df, 
             values='valor',  
             names='label', 
             color='label', 
-            color_discrete_map={
-                'Bebidas/Comidas':'#1E88E590',
-                'iFood':'#1E88E560',
-                'Museu/Cultura/Cinema':'#1E88E530'
-            },
+            color_discrete_map=color_discrete_map,
             hole=0.5)
         return pie_lazer
 
@@ -293,26 +358,37 @@ def server(input: Inputs, output: Outputs, session: Session) -> None:
 
     @render_widget
     def plot_outros():  
+
+        filtered_df = df.loc[(df['data'] == str(input.month())) & (df['tipo'] == 'outros') & (df['valor'] > 0)].sort_values(by='valor', ascending=False) 
+
+        unique_labels = filtered_df['label'].unique()
+
+        base_color = '#FFC107'
+
+        max_steps = len(unique_labels) - 1 if len(unique_labels) > 1 else 1
+
+        alpha_step = 0.9 / max_steps
+
+        color_discrete_map = {
+            label: lighten_color(base_color, factor=i * alpha_step)  
+            for i, label in enumerate(unique_labels)
+        }
+
         pie_outros = px.pie(
-            data_frame=df.loc[(df['data'] == str(input.month())) & (df['tipo'] == 'outros')], 
+            data_frame=filtered_df, 
             values='valor',  
             names='label', 
             color='label', 
-            color_discrete_map={
-                'Uber':'#1E88E590',
-                'Assinaturas':'#1E88E560',
-                'Mobiliário': '#1E88E530',
-                'Parcelamento Pai':'#1E88E505'
-            },
+            color_discrete_map=color_discrete_map,
             hole=0.5)
         return pie_outros
 
     # ========================================================================
 
-    ui.h2("Data from the selected months")
+    ui.h2('Data of the selected months')
 
     @render.data_frame  
-    def penguins_df():
+    def my_df():
         return render.DataGrid(filtered_data()) 
 
     # ========================================================================
